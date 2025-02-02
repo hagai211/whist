@@ -1,7 +1,9 @@
-# db/Dockerfile
-FROM postgres:latest
+FROM mysql:latest
 
-ENV POSTGRES_USER=user
-ENV POSTGRES_PASSWORD=password
-ENV POSTGRES_DB=mydb
+ENV MYSQL_ROOT_PASSWORD=password
+ENV MYSQL_DATABASE=mydb
+ENV MYSQL_USER=user
+ENV MYSQL_PASSWORD=password
+
+COPY init.sql /docker-entrypoint-initdb.d/
 

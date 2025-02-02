@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS access_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date_time DATETIME NOT NULL,
+    client_ip VARCHAR(45) NOT NULL,
+    internal_ip VARCHAR(45) NOT NULL
+);
+

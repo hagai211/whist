@@ -23,8 +23,8 @@ services:
   db:
     build: ./db
     volumes:
-      - /c/Users/User/Desktop/DevOps/Whist/logs/db_data:/var/lib/postgresql/data
-      - /c/Users/User/Desktop/DevOps/Whist/logs/db_logs:/var/log/postgresql
+      - /c/Users/User/Desktop/DevOps/Whist/logs/db_data:/var/lib/mysql
+      - /c/Users/User/Desktop/DevOps/Whist/logs/db_logs:/var/log/mysql
     restart: always
 
 volumes:
