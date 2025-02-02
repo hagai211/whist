@@ -1,4 +1,3 @@
-import time
 from flask import Flask, request, make_response
 from flask_mysqldb import MySQL
 import socket
@@ -33,9 +32,15 @@ def index():
                    (date_time, client_ip, internal_ip))
     mysql.connection.commit()
     cursor.close()
-    # Create a cookie for 5 minutes
-    response = make_response(f"Internal IP: {internal_ip}")
-    response.set_cookie('internal_ip', internal_ip, max_age=300)  # Cookie for 5 minutes
+    # Check if the cookie already exists
+    existing_cookie = request.cookies.get('internal_ip')
+
+    # Set the cookie only if it doesn't exist
+    if not existing_cookie:
+        response = make_response(f"Internal IP: {internal_ip}")
+        response.set_cookie('internal_ip', internal_ip, max_age=300)  # Cookie for 5 minutes
+    else:
+        response = make_response(f"Internal IP: {existing_cookie}")
     return response
 
 
