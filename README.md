@@ -28,6 +28,7 @@ This project consists of a Flask application deployed using Docker, along with a
 ### Running the Application
 
 1. Clone the repository:
+
    git clone https://github.com/hagai211/whist.git
    cd Whist
    docker-compose up --build
