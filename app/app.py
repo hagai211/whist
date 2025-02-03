@@ -3,11 +3,19 @@ from flask_mysqldb import MySQL
 import socket
 import datetime
 import logging
-
-app = Flask(__name__)
+import sys
 
 # Configure logging
-logging.basicConfig(filename='/var/log/app.log', level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),  # Log to stdout for Docker
+        logging.FileHandler('/var/log/app.log')  # Keep logging to a file
+    ]
+)
+
+app = Flask(__name__)
 
 # MySQL configuration
 app.config['MYSQL_HOST'] = 'db'  # Change to your MySQL host
@@ -27,11 +35,16 @@ def index():
     internal_ip = socket.gethostbyname(socket.gethostname())
     client_ip = request.remote_addr
     date_time = datetime.datetime.now()
+
+    # Log the incoming request details
+    logging.info(f"Received request from {client_ip}. Processed by container IP: {internal_ip}")
+
     cursor = mysql.connection.cursor()
     cursor.execute("INSERT INTO access_log (date_time, client_ip, internal_ip) VALUES (%s, %s, %s)",
                    (date_time, client_ip, internal_ip))
     mysql.connection.commit()
     cursor.close()
+
     # Check if the cookie already exists
     existing_cookie = request.cookies.get('internal_ip')
 
@@ -51,3 +64,4 @@ def show_count():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)  # Make sure it's accessible from all IPs
+
