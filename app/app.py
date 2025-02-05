@@ -49,10 +49,14 @@ def index():
     existing_cookie = request.cookies.get('internal_ip')
 
     if not existing_cookie:
-        response = make_response(f"Container: {container_name} | Internal IP: {container_ip}")
-        response.set_cookie('internal_ip', container_name, max_age=300)  # Keep using container name for routing
+        response = make_response(f"Internal IP: {container_ip}")  # Display only IP in browser
+        response.set_cookie('internal_ip', container_name, max_age=300)  # Store container *name* in cookie
     else:
-        response = make_response(f"Container: {existing_cookie} | Internal IP: {socket.gethostbyname(existing_cookie)}")
+        try:
+            resolved_ip = socket.gethostbyname(existing_cookie)  # Resolve stored container name to IP
+            response = make_response(f"Internal IP: {resolved_ip}")
+        except socket.gaierror:
+            response = make_response("Internal IP: (Unknown)")
 
     return response
 
