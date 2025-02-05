@@ -32,15 +32,16 @@ counter = 0
 def index():
     global counter
     counter += 1
-    container_name = socket.gethostname()  # Use container name instead of IP
+    container_name = socket.gethostname()  # Get container name
+    container_ip = socket.gethostbyname(container_name)  # Get internal IP
     client_ip = request.remote_addr
     date_time = datetime.datetime.now()
 
-    logging.info(f"Received request from {client_ip}. Processed by container: {container_name}")
+    logging.info(f"Received request from {client_ip}. Processed by container: {container_name} (IP: {container_ip})")
 
     cursor = mysql.connection.cursor()
     cursor.execute("INSERT INTO access_log (date_time, client_ip, internal_ip) VALUES (%s, %s, %s)",
-                   (date_time, client_ip, container_name))
+                   (date_time, client_ip, container_ip))
     mysql.connection.commit()
     cursor.close()
 
@@ -48,10 +49,10 @@ def index():
     existing_cookie = request.cookies.get('internal_ip')
 
     if not existing_cookie:
-        response = make_response(f"Container: {container_name}")
-        response.set_cookie('internal_ip', container_name, max_age=300)  # Set cookie to container name
+        response = make_response(f"Container: {container_name} | Internal IP: {container_ip}")
+        response.set_cookie('internal_ip', container_name, max_age=300)  # Keep using container name for routing
     else:
-        response = make_response(f"Container: {existing_cookie}")
+        response = make_response(f"Container: {existing_cookie} | Internal IP: {socket.gethostbyname(existing_cookie)}")
 
     return response
 
