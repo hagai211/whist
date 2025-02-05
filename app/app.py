@@ -32,27 +32,28 @@ counter = 0
 def index():
     global counter
     counter += 1
-    container_name = socket.gethostname()  # Use container name instead of IP
+    internal_ip = socket.gethostbyname(socket.gethostname())
     client_ip = request.remote_addr
     date_time = datetime.datetime.now()
 
-    logging.info(f"Received request from {client_ip}. Processed by container: {container_name}")
+    # Log the incoming request details
+    logging.info(f"Received request from {client_ip}. Processed by container IP: {internal_ip}")
 
     cursor = mysql.connection.cursor()
     cursor.execute("INSERT INTO access_log (date_time, client_ip, internal_ip) VALUES (%s, %s, %s)",
-                   (date_time, client_ip, container_name))
+                   (date_time, client_ip, internal_ip))
     mysql.connection.commit()
     cursor.close()
 
     # Check if the cookie already exists
     existing_cookie = request.cookies.get('internal_ip')
 
+    # Set the cookie only if it doesn't exist
     if not existing_cookie:
-        response = make_response(f"Container: {container_name}")
-        response.set_cookie('internal_ip', container_name, max_age=300)  # Set cookie to container name
+        response = make_response(f"Internal IP: {internal_ip}")
+        response.set_cookie('internal_ip', internal_ip, max_age=300)  # Cookie for 5 minutes
     else:
-        response = make_response(f"Container: {existing_cookie}")
-
+        response = make_response(f"Internal IP: {existing_cookie}")
     return response
 
 
@@ -63,3 +64,4 @@ def show_count():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)  # Make sure it's accessible from all IPs
+
