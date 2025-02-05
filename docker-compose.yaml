@@ -17,14 +17,14 @@ services:
     deploy:
       replicas: 3
     volumes:
-      - /change/to/your/local/path/Whist/logs/app_logs:/var/log # Mount your local logs folder
+      - /c/Users/User/Desktop/DevOps/Whist/logs/app_logs:/var/log
     restart: always
 
   db:
     build: ./db
     volumes:
-      - /change/to/your/local/path/Whist/logs/db_data:/var/lib/mysql # Mount your local logs folder
-      - /change/to/your/local/path//Whist/logs/db_logs:/var/log/mysql # Mount your local logs folder
+      - /c/Users/User/Desktop/DevOps/Whist/logs/db_data:/var/lib/mysql
+      - /c/Users/User/Desktop/DevOps/Whist/logs/db_logs:/var/log/mysql
     restart: always
 
 volumes:
