@@ -50,13 +50,9 @@ def index():
 
     if not existing_cookie:
         response = make_response(f"Internal IP: {container_ip}")  # Display only IP in browser
-        response.set_cookie('internal_ip', container_name, max_age=300)  # Store container *name* in cookie
+        response.set_cookie('internal_ip', container_ip, max_age=300)  # Store container *IP* in cookie
     else:
-        try:
-            resolved_ip = socket.gethostbyname(existing_cookie)  # Resolve stored container name to IP
-            response = make_response(f"Internal IP: {resolved_ip}")
-        except socket.gaierror:
-            response = make_response("Internal IP: (Unknown)")
+        response = make_response(f"Internal IP: {existing_cookie}")  # Use IP from cookie
 
     return response
 
