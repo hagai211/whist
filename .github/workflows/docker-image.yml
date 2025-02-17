@@ -8,7 +8,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: 930354804502.dkr.ecr.us-east-1.amazonaws.com/flask/repo
+  ECR_REPOSITORY: flask/repo
   IMAGE_NAME: flask-app       # Base name for your image
 
 jobs:
