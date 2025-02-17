@@ -29,13 +29,15 @@ jobs:
 
       # 3. Extract branch name and short commit SHA
       - name: Set dynamic tag variables
-        id: vars
         run: |
-          echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+          BRANCH="${GITHUB_REF##*/}"
+          SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)
+          TAG="${IMAGE_NAME}-${BRANCH}-${SHORT_SHA}"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-          echo "TAG=${{ env.IMAGE_NAME }}-${BRANCH}-${SHORT_SHA}" >> $GITHUB_ENV
-          echo "Dynamic tag: ${{ env.TAG }}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "Dynamic tag: $TAG"
+
       
       # 4. Build the Docker image using your Dockerfile (assumed to be in the app/ directory)
       - name: Build Docker image
