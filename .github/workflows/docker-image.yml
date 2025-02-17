@@ -1,0 +1,55 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - '**'  # Trigger on any branch
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: 930354804502.dkr.ecr.us-east-1.amazonaws.com/flask/repo
+  IMAGE_NAME: flask-app       # Base name for your image
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 3. Extract branch name and short commit SHA
+      - name: Set dynamic tag variables
+        id: vars
+        run: |
+          echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "TAG=${{ env.IMAGE_NAME }}-${BRANCH}-${SHORT_SHA}" >> $GITHUB_ENV
+          echo "Dynamic tag: ${{ env.TAG }}"
+      
+      # 4. Build the Docker image using your Dockerfile (assumed to be in the app/ directory)
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }}:latest ./app
+
+      # 5. Tag the image with two tags: "latest" and the dynamic tag
+      - name: Tag Docker image with latest and dynamic tag
+        run: |
+          docker tag ${{ env.IMAGE_NAME }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
+          docker tag ${{ env.IMAGE_NAME }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
+
+      # 6. Log in to Amazon ECR
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+
+      # 8. Push both image tags to ECR
+      - name: Push Docker image to ECR (latest)
+        run: |
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
+
+      - name: Push Docker image to ECR (dynamic tag)
+        run: |
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
